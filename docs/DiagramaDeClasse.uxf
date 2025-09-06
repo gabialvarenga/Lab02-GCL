@@ -1,1 +1,124 @@
-<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level></diagram>
+<diagram program="umletino" version="15.1"><zoom_level>9</zoom_level><element><id>UMLClass</id><coordinates><x>0</x><y>0</y><w>234</w><h>198</h></coordinates><panel_attributes>Usuario {abstract}
+--
+-id: Long
+-nome: String
+-email: String
+-senha: String
+-telefone: String
+-dataCadastro: Date
+-ativo: boolean
+--
++fazerLogin(email: String, senha: String): boolean
++fazerLogout(): void
++getters/setters</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>351</x><y>0</y><w>252</w><h>180</h></coordinates><panel_attributes>Cliente
+--
+-cpf: String
+-cnh: String
+-validadeCNH: Date
+-pedidos: List&lt;PedidoAluguel&gt;
+--
++criarPedidoAluguel(): PedidoAluguel
++visualizarPedidos(): void
++modificarPedido(): void
++pesquisarVeiculos(criterio: String): List&lt;Veiculo&gt;
++getters/setters</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>351</x><y>324</y><w>252</w><h>135</h></coordinates><panel_attributes>Agente
+--
+-matricula: String
+-departamento: String
+-pedidosGerenciados: List&lt;PedidoAluguel&gt;
+--
++aprovarPedido(pedido: PedidoAluguel): boolean
++rejeitarPedido(pedido: PedidoAluguel): boolean
++modificarPedido(pedido: PedidoAluguel): void
++executarContrato(pedido: PedidoAluguel): Contrato
++getters/setters</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>351</x><y>504</y><w>252</w><h>162</h></coordinates><panel_attributes>Administrador
+--
+-nivel: String
+-setor: String
+-veiculosCadastrados: List&lt;Veiculo&gt;
+--
++cadastrarVeiculo(...): Veiculo
++atualizarInformacoesVeiculo(...): boolean
++getters/setters</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>684</x><y>0</y><w>234</w><h>234</h></coordinates><panel_attributes>Veiculo
+--
+-id: Long
+-placa: String
+-marca: String
+-modelo: String
+-ano: int
+-cor: String
+-chassi: String
+-valorDiaria: BigDecimal
+-status: StatusVeiculo
+-categoria: Categoria
+-descricao: String
+-quilometragem: int
+--
++getters/setters</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>684</x><y>351</y><w>234</w><h>252</h></coordinates><panel_attributes>PedidoAluguel
+--
+-codigo: String
+-cliente: Cliente
+-veiculo: Veiculo
+-dataPedido: Date
+-dataInicio: Date
+-dataFim: Date
+-valorTotal: BigDecimal
+-status: StatusPedido
+-observacoes: String
+-agenteResponsavel: Agente
+-contrato: Contrato
+--
++atualizarValorTotal(): void
++aprovar(agente: Agente): boolean
++rejeitar(agente: Agente): boolean
++executarContrato(): Contrato
++getters/setters</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1089</x><y>387</y><w>234</w><h>252</h></coordinates><panel_attributes>Contrato
+--
+-numero: String
+-pedidoAluguel: PedidoAluguel
+-dataAssinatura: Date
+-dataRetirada: Date
+-dataDevolucao: Date
+-valorTotal: BigDecimal
+-valorCaucao: BigDecimal
+-assinado: boolean
+-termos: String
+--
+-gerarTermos(): void
++assinar(): boolean
++registrarRetirada(): void
++registrarDevolucao(quilometragemFinal: int): void
++getters/setters</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1125</x><y>0</y><w>180</w><h>117</h></coordinates><panel_attributes>&lt;&lt;enumeration&gt;&gt;
+StatusVeiculo
+--
+DISPONIVEL
+RESERVADO
+ALUGADO
+EM_MANUTENCAO
+INDISPONIVEL</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1107</x><y>189</y><w>180</w><h>135</h></coordinates><panel_attributes>&lt;&lt;enumeration&gt;&gt;
+StatusPedido
+--
+PENDENTE
+APROVADO
+REJEITADO
+CANCELADO
+EM_ANDAMENTO
+CONCLUIDO</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>684</x><y>675</y><w>234</w><h>153</h></coordinates><panel_attributes>&lt;&lt;enumeration&gt;&gt;
+Categoria
+--
+ECONOMICO
+INTERMEDIARIO
+SUV
+LUXO
+UTILITARIO
+MINIVAN
+--
+-valorBaseDiaria: BigDecimal
++getValorBaseDiaria(): BigDecimal</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>225</x><y>27</y><w>144</w><h>27</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;140;10</additional_attributes></element><element><id>Relation</id><coordinates><x>99</x><y>189</y><w>270</w><h>225</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;230;280;230</additional_attributes></element><element><id>Relation</id><coordinates><x>99</x><y>189</y><w>270</w><h>396</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;420;280;420</additional_attributes></element><element><id>Relation</id><coordinates><x>594</x><y>27</y><w>108</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..*</panel_attributes><additional_attributes>100;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>594</x><y>387</y><w>108</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..*</panel_attributes><additional_attributes>100;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>594</x><y>549</y><w>108</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..*</panel_attributes><additional_attributes>100;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>468</x><y>171</y><w>234</w><h>207</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..*</panel_attributes><additional_attributes>240;210;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>810</x><y>225</y><w>36</w><h>144</h></coordinates><panel_attributes>lt=&lt;-
+m1=1</panel_attributes><additional_attributes>10;10;10;140</additional_attributes></element><element><id>Relation</id><coordinates><x>909</x><y>450</y><w>198</w><h>36</h></coordinates><panel_attributes>lt=&lt;-&gt;
+m1=1</panel_attributes><additional_attributes>10;10;200;10</additional_attributes></element><element><id>Relation</id><coordinates><x>810</x><y>594</y><w>36</w><h>99</h></coordinates><panel_attributes>lt=&lt;-
+m1=1</panel_attributes><additional_attributes>10;90;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>909</x><y>54</y><w>234</w><h>27</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>240;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>909</x><y>234</y><w>216</w><h>171</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>220;10;10;170</additional_attributes></element></diagram>
