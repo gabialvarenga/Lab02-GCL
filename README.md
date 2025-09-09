@@ -18,17 +18,17 @@
 - **HU005**: Como cliente, quero modificar meu pedido de aluguel para atualizar minhas necessidades.
 - **HU006**: Como cliente, quero consultar meus pedidos de aluguel para acompanhar o status.
 - **HU007**: Como cliente, quero cancelar meu pedido de aluguel para retirar minha solicitação.
+- **HU008**: Como usuário, quero pesquisar veículos disponíveis para escolher o que alugar.
 
 ### Agente (Empresa/Banco)
-- **HU008**: Como agente, quero visualizar pedidos de aluguel para poder avaliá-los.
-- **HU009**: Como agente, quero modificar pedidos de aluguel para atualizar termos.
-- **HU010**: Como agente, quero aprovar ou rejeitar pedidos de aluguel para controlar o processo.
-- **HU011**: Como agente, quero executar contratos aprovados para que os aluguéis possam prosseguir.
+- **HU009**: Como agente, quero visualizar pedidos de aluguel para poder avaliá-los.
+- **HU010**: Como agente, quero modificar pedidos de aluguel para atualizar termos.
+- **HU011**: Como agente, quero aprovar ou rejeitar pedidos de aluguel para controlar o processo.
+- **HU012**: Como agente, quero executar contratos aprovados para que os aluguéis possam prosseguir.
 
 ### Gestão de Veículos
-- **HU012**: Como administrador, quero cadastrar veículos para que estejam disponíveis para aluguel.
-- **HU013**: Como administrador, quero atualizar informações de veículos para manter os dados atualizados.
-- **HU014**: Como usuário, quero pesquisar veículos disponíveis para escolher o que alugar.
+- **HU013**: Como administrador, quero cadastrar veículos para que estejam disponíveis para aluguel.
+- **HU014**: Como administrador, quero atualizar informações de veículos para manter os dados atualizados.
 
 ---
 
