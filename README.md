@@ -1,15 +1,18 @@
-# Sistema de Aluguel de Carros
+# *Sistema de Aluguel de Carros*
 
 ## Integrantes
 * Carlos José Gomes Batista Figueiredo
 * Gabriela Alvarenga Cardoso
 * Luísa Oliveira Jardim
 
-## Orientadores
+## Orientador
 * João Pedro Oliveira Batisteli
 
-### Autenticação e Cadastro
-- **HU001**: Como usuário, quero me cadastrar no sistema para poder acessar os serviços de aluguel.
+
+## *História de Usuários*
+
+### Usuário
+- **HU001**: Como usuário, quero me cadastrar no sistema para usar todos os recursos disponíveis.
 - **HU002**: Como usuário, quero fazer login no sistema para utilizar a plataforma.
 - **HU003**: Como usuário, quero fazer logout do sistema para manter minha sessão segura.
 
@@ -32,23 +35,47 @@
 
 ---
 
-## Regras de Negócio
+## Requisitos
 
-| Código  | Descrição                                                                 |
-|---------|---------------------------------------------------------------------------|
-| **RN001** | Apenas usuários cadastrados podem acessar o sistema.                    |
-| **RN002** | Clientes só podem gerenciar seus próprios pedidos de aluguel.           |
-| **RN003** | Agentes podem avaliar e modificar qualquer pedido de aluguel.           |
-| **RN004** | Pedidos de aluguel devem ser analisados financeiramente antes da aprovação. |
-| **RN005** | Apenas agentes podem aprovar ou rejeitar pedidos de aluguel.            |
-| **RN006** | Pedidos aprovados tornam-se contratos executáveis.                      |
-| **RN007** | Veículos podem ser registrados como propriedade de clientes, empresas ou bancos. |
-| **RN008** | Clientes devem fornecer RG, CPF, Nome e Endereço.                       |
-| **RN009** | Máximo de 3 empregadores e rendimentos por cliente.                     |
-| **RN010** | Veículos devem ter matrícula, ano, marca, modelo e placa.               |
-| **RN011** | Contratos de crédito podem ser associados ao aluguel de veículos.       |
-| **RN012** | Clientes não podem avaliar pedidos de outros clientes.                  |
-| **RN013** | Empresas e bancos (agentes) têm permissões especiais de modificação.    |
-| **RN014** | Pedidos devem ter parecer positivo dos agentes para execução.           |
-| **RN015** | Contratos só podem ser executados após aprovação financeira.            |
-| **RN016** | Automóveis alugados devem ter registro de propriedade definido.         |
+### Requisitos Funcionais (RF)
+
+| RF   | Descrição                                                                                      | Complexidade |
+|:-----|:----------------------------------------------------------------------------------------------|:------------|
+| RF01 | Permitir cadastro de novos usuários (clientes e agentes).                                      | 2           |
+| RF02 | Permitir login/logout de usuários cadastrados.                                                 | 1           |
+| RF03 | Permitir ao cliente criar, modificar, consultar e cancelar pedidos de aluguel.                 | 2           |
+| RF04 | Permitir ao cliente pesquisar veículos disponíveis.                                            | 1           |
+| RF05 | Permitir ao agente visualizar, modificar, aprovar ou rejeitar pedidos de aluguel.              | 2           |
+| RF06 | Permitir ao agente executar contratos aprovados.                                               | 2           |
+| RF07 | Permitir ao administrador cadastrar e atualizar informações de veículos.                       | 1           |
+
+### Requisitos Não Funcionais (RNF)
+
+| RNF  | Descrição                                                                                      | Complexidade |
+|:-----|:----------------------------------------------------------------------------------------------|:------------|
+| RNF01| Apenas usuários cadastrados podem acessar o sistema.                                           | 1           |
+| RNF02| Clientes só podem gerenciar seus próprios pedidos de aluguel.                                  | 2           |
+| RNF03| Pedidos de aluguel devem ser analisados financeiramente antes da aprovação.                    | 3           |
+| RNF04| Máximo de 3 empregadores e rendimentos por cliente.                                            | 1           |
+| RNF05| Veículos devem ter matrícula, ano, marca, modelo e placa.                                      | 1           |
+| RNF06| Contratos de crédito podem ser associados ao aluguel de veículos.                              | 2           |
+| RNF07| Empresas e bancos (agentes) têm permissões especiais de modificação.                           | 2           |
+| RNF08| Pedidos devem ter parecer positivo dos agentes para execução.                                  | 2           |
+| RNF09| Contratos só podem ser executados após aprovação financeira.                                   | 2           |
+| RNF10| Automóveis alugados devem ter registro de propriedade definido.                                | 1           |
+
+---
+
+## Projeto
+
+### Diagrama de Casos de Uso
+
+![UseCaseDiagram](/docs/DiagramaDeCasosDeUso.drawio.png)
+
+### Diagrama de Classes
+
+![UML](/docs/DiagramaDeClasses.png)
+
+### Diagrama de Pacotes
+
+![PackageDiagram]
