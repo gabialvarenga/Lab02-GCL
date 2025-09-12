@@ -70,7 +70,7 @@
 
 ### Diagrama de Casos de Uso
 
-![UseCaseDiagram](/docs/DiagramaDeCasoDeUso.drawio.pdf)
+![UseCaseDiagram](/docs/DiagramaDeCasoDeUso.jpg)
 
 ### Diagrama de Classes
 
