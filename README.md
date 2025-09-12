@@ -74,7 +74,7 @@
 
 ### Diagrama de Classes
 
-![UML](/docs/DiagramaDeClasses.png)
+![UML](/docs/DiagramaDeClasse.png)
 
 ### Diagrama de Pacotes
 
