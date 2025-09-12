@@ -78,4 +78,4 @@
 
 ### Diagrama de Pacotes
 
-![PackageDiagram]
+![PackageDiagram](/docs/DiagramaDePacote.jpg)
