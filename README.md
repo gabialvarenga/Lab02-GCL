@@ -79,3 +79,6 @@
 ### Diagrama de Pacotes
 
 ![PackageDiagram](/docs/DiagramaDePacote.jpg)
+
+### Diagrama de Componentes
+
