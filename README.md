@@ -81,4 +81,5 @@
 ![PackageDiagram](/docs/DiagramaDePacote.jpg)
 
 ### Diagrama de Componentes
+![componentDiagram](/docs/DiagramaDeComponentes.png)
 
