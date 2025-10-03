@@ -26,6 +26,10 @@ public class Pedido {
     @JoinColumn(name = "automovel_id")
     private Automovel automovel;
     
+    @ManyToOne
+    @JoinColumn(name = "agente_id")
+    private Agente agenteResponsavel;
+    
     @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL)
     private Contrato contrato;
     
@@ -102,6 +106,14 @@ public class Pedido {
     
     public void setAutomovel(Automovel automovel) {
         this.automovel = automovel;
+    }
+    
+    public Agente getAgenteResponsavel() {
+        return agenteResponsavel;
+    }
+    
+    public void setAgenteResponsavel(Agente agenteResponsavel) {
+        this.agenteResponsavel = agenteResponsavel;
     }
     
     public Contrato getContrato() {

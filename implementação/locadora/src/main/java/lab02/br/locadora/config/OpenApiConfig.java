@@ -1,9 +1,12 @@
 package lab02.br.locadora.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,12 +33,25 @@ public class OpenApiConfig {
                 .title("API Locadora de Veículos")
                 .version("1.0")
                 .contact(contact)
-                .description("API para gerenciamento de locadora de veículos")
+                .description("API para gerenciamento de locadora de veículos. Use /api/auth/register para criar um usuário e /api/auth/login para obter o token JWT.")
                 .termsOfService("https://locadora.com/termos")
                 .license(mitLicense);
 
+        // Configuração de segurança JWT
+        SecurityScheme securityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT")
+                .in(SecurityScheme.In.HEADER)
+                .name("Authorization");
+
+        SecurityRequirement securityRequirement = new SecurityRequirement()
+                .addList("Bearer Authentication");
+
         return new OpenAPI()
                 .info(info)
-                .servers(List.of(devServer));
+                .servers(List.of(devServer))
+                .addSecurityItem(securityRequirement)
+                .components(new Components().addSecuritySchemes("Bearer Authentication", securityScheme));
     }
 }

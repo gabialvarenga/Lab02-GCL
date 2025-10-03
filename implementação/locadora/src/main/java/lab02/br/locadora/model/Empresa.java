@@ -6,9 +6,8 @@ import java.util.List;
 
 @Entity
 @DiscriminatorValue("EMPRESA")
-public class Empresa extends Usuario {
+public class Empresa extends Agente {
     
-    private String cnpj;
     private String razaoSocial;
     private String endereco;
     private String telefone;
@@ -23,14 +22,6 @@ public class Empresa extends Usuario {
     }
     
     // Getters e Setters
-    public String getCnpj() {
-        return cnpj;
-    }
-    
-    public void setCnpj(String cnpj) {
-        this.cnpj = cnpj;
-    }
-    
     public String getRazaoSocial() {
         return razaoSocial;
     }
@@ -75,5 +66,24 @@ public class Empresa extends Usuario {
     public void adicionarAutomovel(Automovel automovel) {
         automovel.setProprietario(this);
         this.automoveis.add(automovel);
+    }
+    
+    // Implementação dos métodos abstratos de Agente
+    @Override
+    public boolean avaliarPedido(Pedido pedido) {
+        // Lógica de avaliação da empresa
+        // Por exemplo: verificar se há veículos disponíveis
+        if (pedido.getAutomovel() != null && pedido.getAutomovel().getDisponivel()) {
+            // Pode adicionar outras validações específicas da empresa
+            return true;
+        }
+        return false;
+    }
+    
+    // Método específico da Empresa
+    public Automovel fornecerVeiculo(String matricula, String placa, String marca, String modelo, Integer ano) {
+        Automovel automovel = new Automovel(matricula, ano, marca, modelo, placa);
+        adicionarAutomovel(automovel);
+        return automovel;
     }
 }
