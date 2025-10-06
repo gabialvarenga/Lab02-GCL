@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lab02.br.locadora.dto.PedidoCreateDTO;
 import lab02.br.locadora.dto.PedidoDTO;
@@ -15,6 +14,7 @@ import lab02.br.locadora.repository.UsuarioRepository;
 import lab02.br.locadora.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/pedidos")
 @Tag(name = "Pedidos", description = "API para gerenciamento de pedidos de aluguel")
-@SecurityRequirement(name = "bearer-jwt")
 public class PedidoController {
 
     @Autowired
@@ -68,6 +67,7 @@ public class PedidoController {
     @Operation(summary = "Listar todos os pedidos", 
                description = "Retorna todos os pedidos (apenas para administradores/agentes)")
     @ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso")
+    @PreAuthorize("hasAnyAuthority('ROLE_ATENDENTE', 'ROLE_BANCO', 'ROLE_EMPRESA')")
     public ResponseEntity<List<PedidoDTO>> listarTodosPedidos() {
         List<PedidoDTO> pedidos = pedidoService.listarTodos();
         return ResponseEntity.ok(pedidos);
@@ -75,30 +75,80 @@ public class PedidoController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar pedido por ID", 
-               description = "Retorna os detalhes completos de um pedido específico")
+               description = "Retorna os detalhes completos de um pedido específico. Clientes só podem ver seus próprios pedidos.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedido encontrado"),
+        @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content),
         @ApiResponse(responseCode = "404", description = "Pedido não encontrado", content = @Content)
     })
-    public ResponseEntity<PedidoDTO> buscarPorId(
+    public ResponseEntity<?> buscarPorId(
             @Parameter(description = "ID do pedido") @PathVariable Long id) {
-        return pedidoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
+            
+            // Se for cliente, verifica se o pedido pertence a ele
+            if (usuario.getRole().name().equals("CLIENTE")) {
+                return pedidoService.buscarPorId(id)
+                    .map(pedido -> {
+                        if (pedido.getClienteId().equals(usuario.getId())) {
+                            return ResponseEntity.ok(pedido);
+                        } else {
+                            return ResponseEntity.status(403)
+                                .body(Map.of("message", "Você não tem permissão para acessar este pedido"));
+                        }
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+            }
+            
+            // Atendentes, bancos e empresas podem ver qualquer pedido
+            return pedidoService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(Map.of("message", "Acesso negado"));
+        }
     }
 
     @GetMapping("/{id}/status")
     @Operation(summary = "Consultar status do pedido", 
-               description = "Retorna apenas o status atual de um pedido")
+               description = "Retorna apenas o status atual de um pedido. Clientes só podem consultar seus próprios pedidos.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Status retornado com sucesso"),
+        @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content),
         @ApiResponse(responseCode = "404", description = "Pedido não encontrado", content = @Content)
     })
-    public ResponseEntity<Map<String, StatusPedido>> consultarStatus(
+    public ResponseEntity<?> consultarStatus(
             @Parameter(description = "ID do pedido") @PathVariable Long id) {
-        return pedidoService.consultarStatus(id)
-                .map(status -> ResponseEntity.ok(Map.of("status", status)))
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
+            
+            // Se for cliente, verifica se o pedido pertence a ele
+            if (usuario.getRole().name().equals("CLIENTE")) {
+                return pedidoService.buscarPorId(id)
+                    .map(pedido -> {
+                        if (pedido.getClienteId().equals(usuario.getId())) {
+                            return pedidoService.consultarStatus(id)
+                                .map(status -> ResponseEntity.ok(Map.of("status", status)))
+                                .orElse(ResponseEntity.notFound().build());
+                        } else {
+                            return ResponseEntity.status(403)
+                                .body(Map.of("message", "Você não tem permissão para acessar este pedido"));
+                        }
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+            }
+            
+            // Atendentes, bancos e empresas podem consultar qualquer pedido
+            return pedidoService.consultarStatus(id)
+                    .map(status -> ResponseEntity.ok(Map.of("status", status)))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(Map.of("message", "Acesso negado"));
+        }
     }
 
     @PutMapping("/{id}")
@@ -151,6 +201,7 @@ public class PedidoController {
     @PutMapping("/{id}/aprovar")
     @Operation(summary = "Aprovar pedido", 
                description = "Permite que um atendente aprove um pedido e gere um contrato")
+    @PreAuthorize("hasAuthority('ROLE_ATENDENTE')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedido aprovado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Pedido não pode ser aprovado", content = @Content),
@@ -176,6 +227,7 @@ public class PedidoController {
     @PutMapping("/{id}/rejeitar")
     @Operation(summary = "Rejeitar pedido", 
                description = "Permite que um atendente rejeite um pedido")
+    @PreAuthorize("hasAuthority('ROLE_ATENDENTE')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedido rejeitado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Pedido não pode ser rejeitado", content = @Content),
@@ -203,6 +255,7 @@ public class PedidoController {
     @PutMapping("/{id}/encaminhar-banco/{bancoId}")
     @Operation(summary = "Encaminhar pedido para banco", 
                description = "Permite que um atendente encaminhe um pedido para análise de um banco")
+    @PreAuthorize("hasAuthority('ROLE_ATENDENTE')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Pedido encaminhado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Pedido não pode ser encaminhado", content = @Content),
