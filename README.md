@@ -83,3 +83,6 @@
 ### Diagrama de Componentes
 ![componentDiagram](/docs/DiagramaDeComponentes.png)
 
+##Diagrama de Implantação 
+![ImplantationDiagram](docs/Diagrama_de_Implantação.jpg)
+
