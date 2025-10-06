@@ -27,8 +27,9 @@ public class AutomovelController {
 
     @GetMapping
     @Operation(summary = "Listar todos os automóveis", 
-               description = "Retorna uma lista com todos os automóveis cadastrados")
+               description = "Retorna uma lista com todos os automóveis cadastrados (apenas para atendentes)")
     @ApiResponse(responseCode = "200", description = "Lista de automóveis retornada com sucesso")
+    @PreAuthorize("hasAuthority('ROLE_ATENDENTE')")
     public ResponseEntity<List<AutomovelDTO>> listarTodos() {
         List<AutomovelDTO> automoveis = automovelService.listarTodos();
         return ResponseEntity.ok(automoveis);
@@ -36,7 +37,7 @@ public class AutomovelController {
 
     @GetMapping("/disponiveis")
     @Operation(summary = "Listar automóveis disponíveis", 
-               description = "Retorna apenas automóveis disponíveis para aluguel")
+               description = "Retorna apenas automóveis disponíveis para aluguel (todos os usuários autenticados)")
     @ApiResponse(responseCode = "200", description = "Lista de automóveis disponíveis retornada com sucesso")
     public ResponseEntity<List<AutomovelDTO>> listarDisponiveis() {
         List<AutomovelDTO> automoveis = automovelService.listarDisponiveis();
@@ -45,7 +46,7 @@ public class AutomovelController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar automóvel por ID", 
-               description = "Retorna os detalhes de um automóvel específico")
+               description = "Retorna os detalhes de um automóvel específico (todos os usuários autenticados)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Automóvel encontrado"),
         @ApiResponse(responseCode = "404", description = "Automóvel não encontrado", content = @Content)
@@ -59,11 +60,12 @@ public class AutomovelController {
 
     @GetMapping("/placa/{placa}")
     @Operation(summary = "Buscar automóvel por placa", 
-               description = "Retorna um automóvel com base na placa")
+               description = "Retorna um automóvel com base na placa (apenas para atendentes)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Automóvel encontrado"),
         @ApiResponse(responseCode = "404", description = "Automóvel não encontrado", content = @Content)
     })
+    @PreAuthorize("hasAuthority('ROLE_ATENDENTE')")
     public ResponseEntity<AutomovelDTO> buscarPorPlaca(
             @Parameter(description = "Placa do automóvel") @PathVariable String placa) {
         return automovelService.buscarPorPlaca(placa)

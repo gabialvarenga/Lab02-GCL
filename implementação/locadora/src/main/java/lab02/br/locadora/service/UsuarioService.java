@@ -1,6 +1,7 @@
 package lab02.br.locadora.service;
 
 
+import lab02.br.locadora.model.Role;
 import lab02.br.locadora.model.Usuario;
 import lab02.br.locadora.model.Cliente;
 import lab02.br.locadora.repository.UsuarioRepository;
@@ -20,6 +21,12 @@ public class UsuarioService {
 
     public List<UsuarioDTO> listarTodos() {
         return usuarioRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    }
+    
+    public List<UsuarioDTO> listarClientes() {
+        return usuarioRepository.findByRole(Role.CLIENTE).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     public Optional<UsuarioDTO> buscarPorId(Long id) {
