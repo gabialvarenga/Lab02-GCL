@@ -7,6 +7,8 @@ import lab02.br.locadora.repository.AutomovelRepository;
 import lab02.br.locadora.repository.PedidoRepository;
 import lab02.br.locadora.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -210,5 +212,80 @@ public class PedidoService {
         }
 
         return dto;
+    }
+    
+    /**
+     * Aprova um pedido como atendente
+     */
+    @Transactional
+    public boolean aprovarPedido(Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        
+        // Obter usuário autenticado (atendente)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Atendente atendente = (Atendente) usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
+        
+        // Criar contrato
+        Contrato contrato = atendente.aprovarPedido(pedido);
+        
+        if (contrato == null) {
+            return false;
+        }
+        
+        pedidoRepository.save(pedido);
+        return true;
+    }
+    
+    /**
+     * Rejeita um pedido como atendente
+     */
+    @Transactional
+    public boolean rejeitarPedido(Long pedidoId, String motivo) {
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        
+        // Obter usuário autenticado (atendente)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Atendente atendente = (Atendente) usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
+        
+        // Rejeitar pedido
+        atendente.rejeitarPedido(pedido, motivo);
+        
+        // Liberar o automóvel
+        Automovel automovel = pedido.getAutomovel();
+        automovel.setDisponivel(true);
+        automovelRepository.save(automovel);
+        
+        pedidoRepository.save(pedido);
+        return true;
+    }
+    
+    /**
+     * Encaminha um pedido para análise por um banco
+     */
+    @Transactional
+    public boolean encaminharParaBanco(Long pedidoId, Long bancoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        
+        Banco banco = (Banco) usuarioRepository.findById(bancoId)
+                .orElseThrow(() -> new RuntimeException("Banco não encontrado"));
+        
+        // Obter usuário autenticado (atendente)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Atendente atendente = (Atendente) usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
+        
+        // Encaminhar para banco
+        atendente.encaminharParaBanco(pedido, banco);
+        
+        pedidoRepository.save(pedido);
+        return true;
     }
 }

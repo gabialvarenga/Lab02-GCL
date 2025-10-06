@@ -5,21 +5,21 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lab02.br.locadora.dto.AutomovelDTO;
 import lab02.br.locadora.model.Automovel;
 import lab02.br.locadora.service.AutomovelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/api/automoveis")
 @Tag(name = "Automóveis", description = "API para gerenciamento de automóveis")
-@SecurityRequirement(name = "bearer-jwt")
 public class AutomovelController {
 
     @Autowired
@@ -75,6 +75,7 @@ public class AutomovelController {
     @Operation(summary = "Cadastrar novo automóvel", 
                description = "Cria um novo automóvel no sistema")
     @ApiResponse(responseCode = "200", description = "Automóvel cadastrado com sucesso")
+    @PreAuthorize("hasAuthority('ROLE_ATENDENTE')")
     public ResponseEntity<AutomovelDTO> criar(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Dados do automóvel")
             @RequestBody Automovel automovel) {
@@ -85,6 +86,7 @@ public class AutomovelController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar automóvel", 
                description = "Atualiza os dados de um automóvel existente")
+    @PreAuthorize("hasAuthority('ROLE_ATENDENTE')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Automóvel atualizado com sucesso"),
         @ApiResponse(responseCode = "404", description = "Automóvel não encontrado", content = @Content)
@@ -101,6 +103,7 @@ public class AutomovelController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir automóvel", 
                description = "Remove um automóvel do sistema")
+    @PreAuthorize("hasAuthority('ROLE_ATENDENTE')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Automóvel removido com sucesso"),
         @ApiResponse(responseCode = "404", description = "Automóvel não encontrado", content = @Content)

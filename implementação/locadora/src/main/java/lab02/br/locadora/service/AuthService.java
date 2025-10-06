@@ -69,9 +69,12 @@ public class AuthService {
                 usuario = empresa;
                 break;
             case ATENDENTE:
-                // Para atendentes, criar apenas o usuário base
-                // Você pode criar uma classe Atendente se necessário
-                throw new RuntimeException("Registro de atendentes não implementado");
+                Atendente atendente = new Atendente();
+                atendente.setMatricula(request.getMatricula());
+                atendente.setSetor(request.getSetor());
+                atendente.setAtivo(true);
+                usuario = atendente;
+                break;
             default:
                 throw new RuntimeException("Tipo de usuário inválido");
         }

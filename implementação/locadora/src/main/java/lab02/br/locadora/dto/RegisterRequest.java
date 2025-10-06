@@ -19,6 +19,10 @@ public class RegisterRequest {
     private String razaoSocial;
     private String telefone;
     private String areaAtuacao; // Apenas para Empresa
+    
+    // Campos específicos para Atendente
+    private String matricula;
+    private String setor;
 
     public RegisterRequest() {
     }
@@ -118,5 +122,21 @@ public class RegisterRequest {
 
     public void setAreaAtuacao(String areaAtuacao) {
         this.areaAtuacao = areaAtuacao;
+    }
+    
+    public String getMatricula() {
+        return matricula;
+    }
+    
+    public void setMatricula(String matricula) {
+        this.matricula = matricula;
+    }
+    
+    public String getSetor() {
+        return setor;
+    }
+    
+    public void setSetor(String setor) {
+        this.setor = setor;
     }
 }

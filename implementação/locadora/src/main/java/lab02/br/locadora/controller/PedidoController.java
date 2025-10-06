@@ -148,6 +148,84 @@ public class PedidoController {
         }
     }
 
+    @PutMapping("/{id}/aprovar")
+    @Operation(summary = "Aprovar pedido", 
+               description = "Permite que um atendente aprove um pedido e gere um contrato")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Pedido aprovado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Pedido não pode ser aprovado", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Pedido não encontrado", content = @Content)
+    })
+    public ResponseEntity<Map<String, String>> aprovarPedido(
+            @Parameter(description = "ID do pedido") @PathVariable Long id) {
+        try {
+            boolean aprovado = pedidoService.aprovarPedido(id);
+            
+            if (aprovado) {
+                return ResponseEntity.ok(Map.of("message", "Pedido aprovado com sucesso e contrato gerado"));
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Pedido não pode ser aprovado"));
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+    
+    @PutMapping("/{id}/rejeitar")
+    @Operation(summary = "Rejeitar pedido", 
+               description = "Permite que um atendente rejeite um pedido")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Pedido rejeitado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Pedido não pode ser rejeitado", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Pedido não encontrado", content = @Content)
+    })
+    public ResponseEntity<Map<String, String>> rejeitarPedido(
+            @Parameter(description = "ID do pedido") @PathVariable Long id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Motivo da rejeição")
+            @RequestBody Map<String, String> motivo) {
+        try {
+            boolean rejeitado = pedidoService.rejeitarPedido(id, motivo.get("motivo"));
+            
+            if (rejeitado) {
+                return ResponseEntity.ok(Map.of("message", "Pedido rejeitado com sucesso"));
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Pedido não pode ser rejeitado"));
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+    
+    @PutMapping("/{id}/encaminhar-banco/{bancoId}")
+    @Operation(summary = "Encaminhar pedido para banco", 
+               description = "Permite que um atendente encaminhe um pedido para análise de um banco")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Pedido encaminhado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Pedido não pode ser encaminhado", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Pedido ou banco não encontrado", content = @Content)
+    })
+    public ResponseEntity<Map<String, String>> encaminharParaBanco(
+            @Parameter(description = "ID do pedido") @PathVariable Long id,
+            @Parameter(description = "ID do banco") @PathVariable Long bancoId) {
+        try {
+            boolean encaminhado = pedidoService.encaminharParaBanco(id, bancoId);
+            
+            if (encaminhado) {
+                return ResponseEntity.ok(Map.of("message", "Pedido encaminhado para banco com sucesso"));
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Pedido não pode ser encaminhado"));
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
     /**
      * Obtém o ID do cliente a partir do contexto de segurança
      */
