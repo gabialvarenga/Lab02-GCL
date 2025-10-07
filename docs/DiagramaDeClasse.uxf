@@ -31,11 +31,18 @@ Agente
 + avaliarPedido(pedidoId: Long): ParecerFinanceiro
 + modificarPedido(pedidoId: Long, dto: PedidoDTO): PedidoAluguel</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>315</x><y>567</y><w>217</w><h>63</h></coordinates><panel_attributes>Empresa
 --
-
+-razaoSocial:String
+-endereco: String
+-telefone:String
+areaAtuacao:String
+-automoveis: List&lt;Automovel&gt;
 --
 + fornecerVeiculo(...): Automovel</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>630</x><y>560</y><w>364</w><h>70</h></coordinates><panel_attributes>Banco
 --
-
+-razaoSocial: String
+-endereco: String
+-telefone: String
+-creditos: List&lt;Automovel&gt;
 --
 + analisarFinanciamento(pedidoId: Long): ParecerFinanceiro
 + concederCredito(pedidoId: Long, valor: BigDecimal, prazoMeses: int): ContratoCredito</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>105</x><y>287</y><w>231</w><h>126</h></coordinates><panel_attributes>Atendente
@@ -78,6 +85,7 @@ Agente
 - status: StatusPedido
 - agenteResponsavel: Agente 
 - contrato: Contrato
+-observacoes: String
 --
 + atualizarValorTotal(): void
 + enviarParaAnalise(): void
