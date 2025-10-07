@@ -1,6 +1,8 @@
 package lab02.br.locadora.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,8 +83,8 @@ public class Empresa extends Agente {
     }
     
     // Método específico da Empresa
-    public Automovel fornecerVeiculo(String matricula, String placa, String marca, String modelo, Integer ano) {
-        Automovel automovel = new Automovel(matricula, ano, marca, modelo, placa);
+    public Automovel fornecerVeiculo(String matricula, String placa, String marca, String modelo, Integer ano, BigDecimal valorDiaria) {
+        Automovel automovel = new Automovel(matricula, ano, marca, modelo, placa, valorDiaria);
         adicionarAutomovel(automovel);
         return automovel;
     }

@@ -1,7 +1,10 @@
 package lab02.br.locadora.model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Entity
@@ -11,9 +14,10 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private LocalDate dataPedido;
+    private LocalDateTime dataPedido;
     private LocalDate dataInicio;
     private LocalDate dataFim;
+    private BigDecimal valorTotal;
     
     @Enumerated(EnumType.STRING)
     private StatusPedido status;
@@ -38,8 +42,9 @@ public class Pedido {
     
     // Construtores
     public Pedido() {
-        this.dataPedido = LocalDate.now();
+        this.dataPedido = LocalDateTime.now();
         this.status = StatusPedido.PENDENTE;
+        this.valorTotal = BigDecimal.ZERO;
     }
     
     public Pedido(Cliente cliente, Automovel automovel, LocalDate dataInicio, LocalDate dataFim) {
@@ -47,8 +52,10 @@ public class Pedido {
         this.automovel = automovel;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
-        this.dataPedido = LocalDate.now();
+        this.dataPedido = LocalDateTime.now();
         this.status = StatusPedido.PENDENTE;
+        this.valorTotal = BigDecimal.ZERO;
+        atualizarValorTotal();
     }
     
     // Getters e Setters
@@ -60,12 +67,20 @@ public class Pedido {
         this.id = id;
     }
     
-    public LocalDate getDataPedido() {
+    public LocalDateTime getDataPedido() {
         return dataPedido;
     }
     
-    public void setDataPedido(LocalDate dataPedido) {
+    public void setDataPedido(LocalDateTime dataPedido) {
         this.dataPedido = dataPedido;
+    }
+    
+    public BigDecimal getValorTotal() {
+        return valorTotal;
+    }
+    
+    public void setValorTotal(BigDecimal valorTotal) {
+        this.valorTotal = valorTotal;
     }
     
     public LocalDate getDataInicio() {
@@ -132,7 +147,42 @@ public class Pedido {
         this.observacoes = observacoes;
     }
     
-    // Métodos úteis para fluxo de aprovação
+    // Métodos de negócio conforme diagrama
+    public void atualizarValorTotal() {
+        if (automovel != null && automovel.getValorDiaria() != null && 
+            dataInicio != null && dataFim != null) {
+            long dias = ChronoUnit.DAYS.between(dataInicio, dataFim);
+            if (dias < 0) dias = 0;
+            this.valorTotal = automovel.getValorDiaria().multiply(BigDecimal.valueOf(dias));
+        } else {
+            this.valorTotal = BigDecimal.ZERO;
+        }
+    }
+    
+    public void enviarParaAnalise() {
+        if (status == StatusPedido.PENDENTE) {
+            status = StatusPedido.EM_ANALISE;
+        }
+    }
+    
+    public Contrato aprovar(Long agenteId) {
+        if (status == StatusPedido.PENDENTE || status == StatusPedido.EM_ANALISE) {
+            status = StatusPedido.APROVADO;
+            Contrato novoContrato = new Contrato(this);
+            this.contrato = novoContrato;
+            return novoContrato;
+        }
+        return null;
+    }
+    
+    public void rejeitar(Long agenteId, String motivo) {
+        if (status == StatusPedido.PENDENTE || status == StatusPedido.EM_ANALISE) {
+            status = StatusPedido.REJEITADO;
+            this.observacoes = "Rejeitado pelo agente ID: " + agenteId + ". Motivo: " + motivo;
+        }
+    }
+    
+    // Métodos úteis para fluxo de aprovação (manter compatibilidade)
     public boolean aprovar() {
         if (status == StatusPedido.PENDENTE || status == StatusPedido.EM_ANALISE) {
             status = StatusPedido.APROVADO;

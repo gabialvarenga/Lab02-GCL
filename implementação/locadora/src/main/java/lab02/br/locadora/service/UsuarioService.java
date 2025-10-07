@@ -7,7 +7,6 @@ import lab02.br.locadora.model.Cliente;
 import lab02.br.locadora.repository.UsuarioRepository;
 import lab02.br.locadora.dto.UsuarioDTO;
 import lab02.br.locadora.dto.UsuarioCreateDTO;
-import lab02.br.locadora.dto.ClienteCreateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;

@@ -2,6 +2,7 @@ package lab02.br.locadora.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -13,8 +14,9 @@ public class Credito {
     private Long id;
     
     private String numeroCredito;
-    private BigDecimal valorCredito;
-    private Integer numeroParcelas;
+    private BigDecimal valorFinanciado;
+    private Integer prazoMeses;
+    private Integer parcelas;
     private BigDecimal taxaJuros;
     private LocalDate dataAprovacao;
     
@@ -38,9 +40,10 @@ public class Credito {
         this.dataAprovacao = null;
     }
     
-    public Credito(BigDecimal valorCredito, Integer numeroParcelas, BigDecimal taxaJuros, Contrato contrato, Banco banco) {
-        this.valorCredito = valorCredito;
-        this.numeroParcelas = numeroParcelas;
+    public Credito(BigDecimal valorFinanciado, Integer prazoMeses, BigDecimal taxaJuros, Contrato contrato, Banco banco) {
+        this.valorFinanciado = valorFinanciado;
+        this.prazoMeses = prazoMeses;
+        this.parcelas = prazoMeses; // parcelas = prazo em meses
         this.taxaJuros = taxaJuros;
         this.contrato = contrato;
         this.banco = banco;
@@ -68,20 +71,28 @@ public class Credito {
         this.numeroCredito = numeroCredito;
     }
     
-    public BigDecimal getValorCredito() {
-        return valorCredito;
+    public BigDecimal getValorFinanciado() {
+        return valorFinanciado;
     }
     
-    public void setValorCredito(BigDecimal valorCredito) {
-        this.valorCredito = valorCredito;
+    public void setValorFinanciado(BigDecimal valorFinanciado) {
+        this.valorFinanciado = valorFinanciado;
     }
     
-    public Integer getNumeroParcelas() {
-        return numeroParcelas;
+    public Integer getPrazoMeses() {
+        return prazoMeses;
     }
     
-    public void setNumeroParcelas(Integer numeroParcelas) {
-        this.numeroParcelas = numeroParcelas;
+    public void setPrazoMeses(Integer prazoMeses) {
+        this.prazoMeses = prazoMeses;
+    }
+    
+    public Integer getParcelas() {
+        return parcelas;
+    }
+    
+    public void setParcelas(Integer parcelas) {
+        this.parcelas = parcelas;
     }
     
     public BigDecimal getTaxaJuros() {
@@ -146,6 +157,38 @@ public class Credito {
         this.status = StatusCredito.CANCELADO;
     }
     
+    // Método de negócio conforme diagrama
+    public BigDecimal calcularParcela() {
+        if (valorFinanciado == null || parcelas == null || parcelas == 0) {
+            return BigDecimal.ZERO;
+        }
+        
+        if (taxaJuros == null || taxaJuros.compareTo(BigDecimal.ZERO) == 0) {
+            // Sem juros, apenas divide o valor pelas parcelas
+            return valorFinanciado.divide(BigDecimal.valueOf(parcelas), 2, RoundingMode.HALF_UP);
+        }
+        
+        // Fórmula de Price: PMT = PV * (i * (1+i)^n) / ((1+i)^n - 1)
+        // onde PV = valor presente, i = taxa mensal, n = número de parcelas
+        BigDecimal taxaMensal = taxaJuros.divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP);
+        BigDecimal umMaisTaxa = BigDecimal.ONE.add(taxaMensal);
+        
+        // Calcular (1+i)^n
+        BigDecimal potencia = umMaisTaxa.pow(parcelas);
+        
+        // Numerador: i * (1+i)^n
+        BigDecimal numerador = taxaMensal.multiply(potencia);
+        
+        // Denominador: (1+i)^n - 1
+        BigDecimal denominador = potencia.subtract(BigDecimal.ONE);
+        
+        // Fração final
+        BigDecimal fator = numerador.divide(denominador, 6, RoundingMode.HALF_UP);
+        
+        // Valor da parcela
+        return valorFinanciado.multiply(fator).setScale(2, RoundingMode.HALF_UP);
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -165,8 +208,9 @@ public class Credito {
         return "Credito{" +
                 "id=" + id +
                 ", numeroCredito='" + numeroCredito + '\'' +
-                ", valorCredito=" + valorCredito +
-                ", numeroParcelas=" + numeroParcelas +
+                ", valorFinanciado=" + valorFinanciado +
+                ", prazoMeses=" + prazoMeses +
+                ", parcelas=" + parcelas +
                 ", taxaJuros=" + taxaJuros +
                 ", status=" + status +
                 ", contrato=" + (contrato != null ? contrato.getId() : null) +

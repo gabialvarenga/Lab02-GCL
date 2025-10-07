@@ -63,7 +63,7 @@ public class PedidoService {
         pedido.setDataInicio(pedidoCreateDTO.getDataInicio());
         pedido.setDataFim(pedidoCreateDTO.getDataFim());
         pedido.setObservacoes(pedidoCreateDTO.getObservacoes());
-        pedido.setDataPedido(LocalDate.now());
+        pedido.setDataPedido(LocalDate.now().atStartOfDay());
         pedido.setStatus(StatusPedido.PENDENTE);
 
         // Marcar automóvel como indisponível
@@ -189,7 +189,7 @@ public class PedidoService {
     private PedidoDTO toDTO(Pedido pedido) {
         PedidoDTO dto = new PedidoDTO();
         dto.setId(pedido.getId());
-        dto.setDataPedido(pedido.getDataPedido());
+        dto.setDataPedido(pedido.getDataPedido().toLocalDate());
         dto.setDataInicio(pedido.getDataInicio());
         dto.setDataFim(pedido.getDataFim());
         dto.setStatus(pedido.getStatus());
@@ -215,12 +215,18 @@ public class PedidoService {
     }
     
     /**
-     * Aprova um pedido como atendente
+     * Aprova um pedido como atendente e gera contrato
      */
     @Transactional
     public boolean aprovarPedido(Long pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        
+        // Verificar se o pedido está em um status que permite aprovação
+        if (pedido.getStatus() != StatusPedido.PENDENTE && 
+            pedido.getStatus() != StatusPedido.EM_ANALISE) {
+            throw new RuntimeException("Apenas pedidos PENDENTES ou EM_ANALISE podem ser aprovados");
+        }
         
         // Obter usuário autenticado (atendente)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -228,14 +234,19 @@ public class PedidoService {
         Atendente atendente = (Atendente) usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
         
-        // Criar contrato
-        Contrato contrato = atendente.aprovarPedido(pedido);
+        // Aprovar pedido usando o método da entidade que retorna o contrato
+        Contrato contrato = pedido.aprovar(atendente.getId());
         
         if (contrato == null) {
-            return false;
+            throw new RuntimeException("Não foi possível gerar o contrato");
         }
         
+        // Associar o contrato ao pedido
+        pedido.setContrato(contrato);
+        
+        // Salvar pedido atualizado (cascade salvará o contrato)
         pedidoRepository.save(pedido);
+        
         return true;
     }
     
@@ -247,19 +258,27 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
         
+        // Verificar se o pedido pode ser rejeitado
+        if (pedido.getStatus() != StatusPedido.PENDENTE && 
+            pedido.getStatus() != StatusPedido.EM_ANALISE) {
+            throw new RuntimeException("Apenas pedidos PENDENTES ou EM_ANALISE podem ser rejeitados");
+        }
+        
         // Obter usuário autenticado (atendente)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         Atendente atendente = (Atendente) usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
         
-        // Rejeitar pedido
-        atendente.rejeitarPedido(pedido, motivo);
+        // Rejeitar pedido usando o método da entidade
+        pedido.rejeitar(atendente.getId(), motivo);
         
         // Liberar o automóvel
         Automovel automovel = pedido.getAutomovel();
-        automovel.setDisponivel(true);
-        automovelRepository.save(automovel);
+        if (automovel != null) {
+            automovel.setDisponivel(true);
+            automovelRepository.save(automovel);
+        }
         
         pedidoRepository.save(pedido);
         return true;
@@ -273,6 +292,11 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
         
+        // Verificar se o pedido está pendente
+        if (pedido.getStatus() != StatusPedido.PENDENTE) {
+            throw new RuntimeException("Apenas pedidos PENDENTES podem ser encaminhados para análise");
+        }
+        
         Banco banco = (Banco) usuarioRepository.findById(bancoId)
                 .orElseThrow(() -> new RuntimeException("Banco não encontrado"));
         
@@ -282,8 +306,10 @@ public class PedidoService {
         Atendente atendente = (Atendente) usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
         
-        // Encaminhar para banco
-        atendente.encaminharParaBanco(pedido, banco);
+        // Encaminhar para análise do banco
+        pedido.enviarParaAnalise();
+        pedido.setAgenteResponsavel(banco);
+        banco.adicionarPedidoGerenciado(pedido);
         
         pedidoRepository.save(pedido);
         return true;

@@ -1,6 +1,7 @@
 package lab02.br.locadora.model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -11,11 +12,12 @@ public class Automovel {
     private Long id;
     
     private String matricula;
-    private Integer ano;
+    private String placa;
     private String marca;
     private String modelo;
-    private String placa;
+    private Integer ano;
     private Boolean disponivel;
+    private BigDecimal valorDiaria;
     
     @ManyToOne
     @JoinColumn(name = "proprietario_id")
@@ -26,13 +28,14 @@ public class Automovel {
         this.disponivel = true;
     }
     
-    public Automovel(String matricula, Integer ano, String marca, String modelo, String placa) {
+    public Automovel(String matricula, Integer ano, String marca, String modelo, String placa, BigDecimal valorDiaria) {
         this.matricula = matricula;
         this.ano = ano;
         this.marca = marca;
         this.modelo = modelo;
         this.placa = placa;
         this.disponivel = true;
+        this.valorDiaria = valorDiaria;
     }
     
     // Getters e Setters
@@ -98,6 +101,19 @@ public class Automovel {
     
     public void setProprietario(Usuario proprietario) {
         this.proprietario = proprietario;
+    }
+    
+    public BigDecimal getValorDiaria() {
+        return valorDiaria;
+    }
+    
+    public void setValorDiaria(BigDecimal valorDiaria) {
+        this.valorDiaria = valorDiaria;
+    }
+    
+    // Método de negócio conforme diagrama
+    public void marcarDisponivel(boolean flag) {
+        this.disponivel = flag;
     }
     
     @Override

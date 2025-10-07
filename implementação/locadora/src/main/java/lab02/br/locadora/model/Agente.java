@@ -50,14 +50,24 @@ public abstract class Agente extends Usuario {
         this.pedidosGerenciados.add(pedido);
     }
     
-    // Métodos abstratos que devem ser implementados pelas subclasses
+    // Métodos abstratos e concretos conforme diagrama
     public abstract boolean avaliarPedido(Pedido pedido);
     
-    public void modificarPedido(Pedido pedido) {
+    public Pedido modificarPedido(Long pedidoId, Pedido pedidoAtualizado) {
         // Lógica comum de modificação de pedido
-        if (pedido.getStatus() == StatusPedido.PENDENTE || 
-            pedido.getStatus() == StatusPedido.EM_ANALISE) {
+        Pedido pedido = pedidosGerenciados.stream()
+            .filter(p -> p.getId().equals(pedidoId))
+            .findFirst()
+            .orElse(null);
+            
+        if (pedido != null && (pedido.getStatus() == StatusPedido.PENDENTE || 
+            pedido.getStatus() == StatusPedido.EM_ANALISE)) {
             pedido.setAgenteResponsavel(this);
+            pedido.setDataInicio(pedidoAtualizado.getDataInicio());
+            pedido.setDataFim(pedidoAtualizado.getDataFim());
+            pedido.atualizarValorTotal();
+            return pedido;
         }
+        return null;
     }
-}
+} 

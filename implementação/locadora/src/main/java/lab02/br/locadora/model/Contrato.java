@@ -12,48 +12,43 @@ public class Contrato {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String numeroContrato;
-    private LocalDate dataAssinatura;
-    private LocalDate dataInicio;
-    private LocalDate dataFim;
-    private BigDecimal valorTotal;
-    private Boolean ativo;
+    private String numero;
     
     @OneToOne
     @JoinColumn(name = "pedido_id")
     private Pedido pedido;
     
-    @ManyToOne
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
+    private LocalDate dataAssinatura;
+    private LocalDate dataRetirada;
+    private LocalDate dataDevolucao;
+    private BigDecimal valorTotal;
+    private BigDecimal valorCaucao;
+    private Boolean assinado;
     
-    @ManyToOne
-    @JoinColumn(name = "automovel_id")
-    private Automovel automovel;
+    @Enumerated(EnumType.STRING)
+    private TipoContrato tipoContrato;
     
     @OneToOne(mappedBy = "contrato", cascade = CascadeType.ALL)
     private Credito credito;
     
-    @Column(length = 2000)
-    private String termosContratuais;
-    
     // Construtores
     public Contrato() {
         this.dataAssinatura = LocalDate.now();
-        this.ativo = true;
+        this.assinado = false;
+        this.tipoContrato = TipoContrato.ALUGUEL;
+        this.valorCaucao = BigDecimal.ZERO;
     }
     
     public Contrato(Pedido pedido) {
         this.pedido = pedido;
-        this.cliente = pedido.getCliente();
-        this.automovel = pedido.getAutomovel();
         this.dataAssinatura = LocalDate.now();
-        this.dataInicio = pedido.getDataInicio();
-        this.dataFim = pedido.getDataFim();
-        this.ativo = true;
+        this.valorTotal = pedido.getValorTotal();
+        this.assinado = false;
+        this.tipoContrato = TipoContrato.ALUGUEL;
+        this.valorCaucao = BigDecimal.ZERO;
         
         // Geração de número de contrato
-        this.numeroContrato = "CTR-" + System.currentTimeMillis();
+        this.numero = "CTR-" + System.currentTimeMillis();
     }
     
     // Getters e Setters
@@ -65,12 +60,20 @@ public class Contrato {
         this.id = id;
     }
     
-    public String getNumeroContrato() {
-        return numeroContrato;
+    public String getNumero() {
+        return numero;
     }
     
-    public void setNumeroContrato(String numeroContrato) {
-        this.numeroContrato = numeroContrato;
+    public void setNumero(String numero) {
+        this.numero = numero;
+    }
+    
+    public Pedido getpedido() {
+        return pedido;
+    }
+    
+    public void setpedido(Pedido pedido) {
+        this.pedido = pedido;
     }
     
     public LocalDate getDataAssinatura() {
@@ -81,20 +84,20 @@ public class Contrato {
         this.dataAssinatura = dataAssinatura;
     }
     
-    public LocalDate getDataInicio() {
-        return dataInicio;
+    public LocalDate getDataRetirada() {
+        return dataRetirada;
     }
     
-    public void setDataInicio(LocalDate dataInicio) {
-        this.dataInicio = dataInicio;
+    public void setDataRetirada(LocalDate dataRetirada) {
+        this.dataRetirada = dataRetirada;
     }
     
-    public LocalDate getDataFim() {
-        return dataFim;
+    public LocalDate getDataDevolucao() {
+        return dataDevolucao;
     }
     
-    public void setDataFim(LocalDate dataFim) {
-        this.dataFim = dataFim;
+    public void setDataDevolucao(LocalDate dataDevolucao) {
+        this.dataDevolucao = dataDevolucao;
     }
     
     public BigDecimal getValorTotal() {
@@ -105,36 +108,28 @@ public class Contrato {
         this.valorTotal = valorTotal;
     }
     
-    public Boolean getAtivo() {
-        return ativo;
+    public BigDecimal getValorCaucao() {
+        return valorCaucao;
     }
     
-    public void setAtivo(Boolean ativo) {
-        this.ativo = ativo;
+    public void setValorCaucao(BigDecimal valorCaucao) {
+        this.valorCaucao = valorCaucao;
     }
     
-    public Pedido getPedido() {
-        return pedido;
+    public Boolean getAssinado() {
+        return assinado;
     }
     
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void setAssinado(Boolean assinado) {
+        this.assinado = assinado;
     }
     
-    public Cliente getCliente() {
-        return cliente;
+    public TipoContrato getTipoContrato() {
+        return tipoContrato;
     }
     
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-    
-    public Automovel getAutomovel() {
-        return automovel;
-    }
-    
-    public void setAutomovel(Automovel automovel) {
-        this.automovel = automovel;
+    public void setTipoContrato(TipoContrato tipoContrato) {
+        this.tipoContrato = tipoContrato;
     }
     
     public Credito getCredito() {
@@ -145,17 +140,22 @@ public class Contrato {
         this.credito = credito;
     }
     
-    public String getTermosContratuais() {
-        return termosContratuais;
+    // Métodos de negócio conforme diagrama
+    public boolean assinar() {
+        if (!assinado) {
+            this.assinado = true;
+            return true;
+        }
+        return false;
     }
     
-    public void setTermosContratuais(String termosContratuais) {
-        this.termosContratuais = termosContratuais;
+    public void registrarRetirada() {
+        this.dataRetirada = LocalDate.now();
     }
     
-    // Método para cancelar o contrato
-    public void cancelar() {
-        this.ativo = false;
+    public void registrarDevolucao(int quilometragemFinal) {
+        this.dataDevolucao = LocalDate.now();
+        // Lógica adicional para registrar quilometragem pode ser adicionada aqui
     }
     
     @Override
@@ -164,25 +164,26 @@ public class Contrato {
         if (o == null || getClass() != o.getClass()) return false;
         Contrato contrato = (Contrato) o;
         return Objects.equals(id, contrato.id) || 
-               Objects.equals(numeroContrato, contrato.numeroContrato);
+               Objects.equals(numero, contrato.numero);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(id, numeroContrato);
+        return Objects.hash(id, numero);
     }
     
     @Override
     public String toString() {
         return "Contrato{" +
                 "id=" + id +
-                ", numeroContrato='" + numeroContrato + '\'' +
+                ", numero='" + numero + '\'' +
                 ", dataAssinatura=" + dataAssinatura +
-                ", dataInicio=" + dataInicio +
-                ", dataFim=" + dataFim +
+                ", dataRetirada=" + dataRetirada +
+                ", dataDevolucao=" + dataDevolucao +
                 ", valorTotal=" + valorTotal +
-                ", ativo=" + ativo +
-                ", cliente=" + (cliente != null ? cliente.getId() : null) +
+                ", valorCaucao=" + valorCaucao +
+                ", assinado=" + assinado +
+                ", tipoContrato=" + tipoContrato +
                 '}';
     }
 }

@@ -1,6 +1,8 @@
 package lab02.br.locadora.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,30 +56,18 @@ public class Atendente extends Usuario {
         this.veiculosCadastrados = veiculosCadastrados;
     }
     
-    // Métodos de negócio
-    public Contrato aprovarPedido(Pedido pedido) {
-        if (pedido.aprovar()) {
-            Contrato contrato = new Contrato(pedido);
-            pedido.setContrato(contrato);
-            pedido.setStatus(StatusPedido.CONTRATO_GERADO);
-            return contrato;
-        }
-        return null;
+    public Contrato aprovarPedido(Long pedidoId) {
+        return null; 
     }
     
-    public void rejeitarPedido(Pedido pedido, String motivo) {
-        pedido.rejeitar();
-        pedido.setObservacoes("Rejeitado por: " + this.getNome() + ". Motivo: " + motivo);
+    public void rejeitarPedido(Long pedidoId, String motivo) {
     }
     
-    public void encaminharParaBanco(Pedido pedido, Banco banco) {
-        pedido.iniciarAnalise();
-        pedido.setAgenteResponsavel(banco);
-        banco.adicionarPedidoGerenciado(pedido);
+    public void encaminharParaBanco(Long pedidoId) {
     }
     
-    public Automovel cadastrarVeiculo(String matricula, Integer ano, String marca, String modelo, String placa) {
-        Automovel automovel = new Automovel(matricula, ano, marca, modelo, placa);
+    public Automovel cadastrarVeiculo(String matricula, Integer ano, String marca, String modelo, String placa, BigDecimal valorDiaria) {
+        Automovel automovel = new Automovel(matricula, ano, marca, modelo, placa, valorDiaria);
         this.veiculosCadastrados.add(automovel);
         return automovel;
     }
@@ -91,4 +81,4 @@ public class Atendente extends Usuario {
         }
         return false;
     }
-}
+} 

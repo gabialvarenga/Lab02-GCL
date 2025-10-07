@@ -17,12 +17,6 @@ public class Cliente extends Usuario {
     
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     private List<Pedido> pedidos = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
-    private List<Contrato> contratos = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "proprietario", cascade = CascadeType.ALL)
-    private List<Automovel> automoveis = new ArrayList<>();
 
     // Getters e setters
     public String getCpf() { return cpf; }
@@ -36,31 +30,51 @@ public class Cliente extends Usuario {
     public List<Emprego> getEmpregos() { return empregos; }
     public void setEmpregos(List<Emprego> empregos) { this.empregos = empregos; }
     
-    public List<Pedido> getPedidos() { return pedidos; }
-    public void setPedidos(List<Pedido> pedidos) { this.pedidos = pedidos; }
+    public List<Pedido> getPedidos() { 
+        return pedidos; 
+    }
     
-    public List<Contrato> getContratos() { return contratos; }
-    public void setContratos(List<Contrato> contratos) { this.contratos = contratos; }
+    public void setPedidos(List<Pedido> pedidos) { 
+        this.pedidos = pedidos; 
+    }
     
-    public List<Automovel> getAutomoveis() { return automoveis; }
-    public void setAutomoveis(List<Automovel> automoveis) { this.automoveis = automoveis; }
-    
-    // Métodos de conveniência
-    public void adicionarPedido(Pedido pedido) {
+    // Métodos de negócio conforme diagrama
+    public Pedido criarPedido(Pedido pedido) {
         pedido.setCliente(this);
         this.pedidos.add(pedido);
+        return pedido;
     }
     
-    public void adicionarContrato(Contrato contrato) {
-        contrato.setCliente(this);
-        this.contratos.add(contrato);
+    public Pedido modificarPedido(Long id, Pedido pedidoAtualizado) {
+        Pedido pedido = pedidos.stream()
+            .filter(p -> p.getId().equals(id))
+            .findFirst()
+            .orElse(null);
+            
+        if (pedido != null && pedido.getStatus() == StatusPedido.PENDENTE) {
+            pedido.setDataInicio(pedidoAtualizado.getDataInicio());
+            pedido.setDataFim(pedidoAtualizado.getDataFim());
+            pedido.atualizarValorTotal();
+            return pedido;
+        }
+        return null;
     }
     
-    public void adicionarAutomovel(Automovel automovel) {
-        automovel.setProprietario(this);
-        this.automoveis.add(automovel);
+    public Pedido consultarPedido(Long id) {
+        return pedidos.stream()
+            .filter(p -> p.getId().equals(id))
+            .findFirst()
+            .orElse(null);
     }
     
+    public void cancelarPedido(Long id) {
+        Pedido pedido = consultarPedido(id);
+        if (pedido != null) {
+            pedido.cancelar();
+        }
+    }
+    
+    // Métodos de conveniência
     public void adicionarEmprego(Emprego emprego) {
         emprego.setCliente(this);
         this.empregos.add(emprego);

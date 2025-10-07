@@ -93,10 +93,15 @@ public class Banco extends Agente {
         return false;
     }
     
-    // Método específico do Banco
-    public Credito concederCredito(Pedido pedido, BigDecimal valorCredito, Integer numeroParcelas, BigDecimal taxaJuros) {
+    // Métodos específicos do Banco conforme diagrama
+    public boolean analisarFinanciamento(Pedido pedido) {
+        return avaliarPedido(pedido);
+    }
+    
+    public Credito concederCredito(Pedido pedido, BigDecimal valor, int prazoMeses) {
         if (avaliarPedido(pedido)) {
-            Credito credito = new Credito(valorCredito, numeroParcelas, taxaJuros, pedido.getContrato(), this);
+            BigDecimal taxaJuros = BigDecimal.valueOf(1.5); // Taxa exemplo de 1.5% ao mês
+            Credito credito = new Credito(valor, prazoMeses, taxaJuros, pedido.getContrato(), this);
             credito.aprovar();
             adicionarCredito(credito);
             return credito;
