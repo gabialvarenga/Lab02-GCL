@@ -10,7 +10,7 @@ import java.time.LocalDate;
  */
 public class ContratoCreateDTO {
     
-    private Long pedidoAluguelId;
+    private Long pedidoId;
     private BigDecimal valorCaucao;
     private TipoContrato tipoContrato;
     
@@ -18,19 +18,19 @@ public class ContratoCreateDTO {
     public ContratoCreateDTO() {
     }
     
-    public ContratoCreateDTO(Long pedidoAluguelId, BigDecimal valorCaucao, TipoContrato tipoContrato) {
-        this.pedidoAluguelId = pedidoAluguelId;
+    public ContratoCreateDTO(Long pedidoId, BigDecimal valorCaucao, TipoContrato tipoContrato) {
+        this.pedidoId = pedidoId;
         this.valorCaucao = valorCaucao;
         this.tipoContrato = tipoContrato;
     }
     
     // Getters e Setters
-    public Long getPedidoAluguelId() {
-        return pedidoAluguelId;
+    public Long getPedidoId() {
+        return pedidoId;
     }
     
-    public void setPedidoAluguelId(Long pedidoAluguelId) {
-        this.pedidoAluguelId = pedidoAluguelId;
+    public void setPedidoId(Long pedidoId) {
+        this.pedidoId = pedidoId;
     }
     
     public BigDecimal getValorCaucao() {

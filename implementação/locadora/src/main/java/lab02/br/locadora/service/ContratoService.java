@@ -6,8 +6,6 @@ import lab02.br.locadora.model.*;
 import lab02.br.locadora.repository.AutomovelRepository;
 import lab02.br.locadora.repository.ContratoRepository;
 import lab02.br.locadora.repository.PedidoRepository;
-import lab02.br.locadora.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,17 +16,17 @@ import java.util.stream.Collectors;
 @Service
 public class ContratoService {
 
-    @Autowired
-    private ContratoRepository contratoRepository;
+    private final ContratoRepository contratoRepository;
+    private final PedidoRepository pedidoRepository;
+    private final AutomovelRepository automovelRepository;
 
-    @Autowired
-    private PedidoRepository pedidoRepository;
-    
-    @Autowired
-    private AutomovelRepository automovelRepository;
-    
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    public ContratoService(ContratoRepository contratoRepository, 
+                          PedidoRepository pedidoRepository,
+                          AutomovelRepository automovelRepository) {
+        this.contratoRepository = contratoRepository;
+        this.pedidoRepository = pedidoRepository;
+        this.automovelRepository = automovelRepository;
+    }
 
     /**
      * Cria um novo contrato a partir de um pedido aprovado
@@ -36,7 +34,7 @@ public class ContratoService {
     @Transactional
     public ContratoDTO criarContrato(ContratoCreateDTO contratoCreateDTO) {
         // Buscar pedido
-        Pedido pedido = pedidoRepository.findById(contratoCreateDTO.getpedidoId())
+        Pedido pedido = pedidoRepository.findById(contratoCreateDTO.getPedidoId())
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
         // Validar se o pedido foi aprovado
@@ -45,7 +43,7 @@ public class ContratoService {
         }
 
         // Verificar se já existe contrato para este pedido
-        if (contratoRepository.findByPedidoAluguelId(pedido.getId()).isPresent()) {
+    if (contratoRepository.findByPedidoId(pedido.getId()).isPresent()) {
             throw new RuntimeException("Já existe um contrato para este pedido");
         }
 
@@ -80,14 +78,8 @@ public class ContratoService {
     private void registrarPropriedadeAutomovel(Contrato contrato, Pedido pedido) {
         Automovel automovel = pedido.getAutomovel();
         
-        if (contrato.getTipoContrato() == TipoContrato.CREDITO) {
-            // Se for crédito, o automóvel pode ser registrado como propriedade
-            // Por padrão, mantém o proprietário atual (empresa/banco que forneceu)
-            // Após quitação total, pode ser transferido para o cliente
-        } else {
-            // Para aluguel simples, o automóvel continua com o proprietário original
-            // (empresa ou banco que forneceu o veículo)
-        }
+        // Para aluguel simples, o automóvel continua com o proprietário original
+        // Para crédito, o automóvel pode ser transferido após quitação total
         
         automovelRepository.save(automovel);
     }
@@ -112,8 +104,8 @@ public class ContratoService {
         }
         
         // Transferir propriedade
-        Automovel automovel = contrato.getpedido().getAutomovel();
-        Cliente cliente = contrato.getpedido().getCliente();
+        Automovel automovel = contrato.getPedido().getAutomovel();
+        Cliente cliente = contrato.getPedido().getCliente();
         
         automovel.setProprietario(cliente);
         automovelRepository.save(automovel);
@@ -196,7 +188,7 @@ public class ContratoService {
         Contrato contrato = contratoRepository.findById(contratoId)
                 .orElseThrow(() -> new RuntimeException("Contrato não encontrado"));
 
-        if (!contrato.getAssinado()) {
+        if (Boolean.FALSE.equals(contrato.getAssinado())) {
             throw new RuntimeException("Contrato precisa estar assinado para registrar retirada");
         }
 
@@ -221,7 +213,7 @@ public class ContratoService {
         contrato.registrarDevolucao(quilometragemFinal);
         
         // Liberar automóvel para novas locações
-        Automovel automovel = contrato.getpedido().getAutomovel();
+        Automovel automovel = contrato.getPedido().getAutomovel();
         automovel.setDisponivel(true);
         automovelRepository.save(automovel);
         
@@ -247,16 +239,16 @@ public class ContratoService {
         dto.setTipoContrato(contrato.getTipoContrato());
 
         // Dados do pedido
-        if (contrato.getpedido() != null) {
-            dto.setPedidoAluguelId(contrato.getpedido().getId());
+        if (contrato.getPedido() != null) {
+            dto.setPedidoId(contrato.getPedido().getId());
             
-            if (contrato.getpedido().getCliente() != null) {
-                dto.setClienteId(contrato.getpedido().getCliente().getId());
-                dto.setClienteNome(contrato.getpedido().getCliente().getNome());
+            if (contrato.getPedido().getCliente() != null) {
+                dto.setClienteId(contrato.getPedido().getCliente().getId());
+                dto.setClienteNome(contrato.getPedido().getCliente().getNome());
             }
             
-            if (contrato.getpedido().getAutomovel() != null) {
-                Automovel automovel = contrato.getpedido().getAutomovel();
+            if (contrato.getPedido().getAutomovel() != null) {
+                Automovel automovel = contrato.getPedido().getAutomovel();
                 dto.setAutomovelId(automovel.getId());
                 dto.setAutomovelModelo(automovel.getMarca() + " " + automovel.getModelo());
                 dto.setAutomovelPlaca(automovel.getPlaca());

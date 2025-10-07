@@ -12,7 +12,7 @@ public class ContratoDTO {
     
     private Long id;
     private String numero;
-    private Long pedidoAluguelId;
+    private Long pedidoId;
     private LocalDate dataAssinatura;
     private LocalDate dataRetirada;
     private LocalDate dataDevolucao;
@@ -36,6 +36,7 @@ public class ContratoDTO {
     
     // Construtores
     public ContratoDTO() {
+        // Construtor vazio necessário para serialização/desserialização
     }
     
     // Getters e Setters
@@ -55,12 +56,12 @@ public class ContratoDTO {
         this.numero = numero;
     }
     
-    public Long getPedidoAluguelId() {
-        return pedidoAluguelId;
+    public Long getPedidoId() {
+        return pedidoId;
     }
     
-    public void setPedidoAluguelId(Long pedidoAluguelId) {
-        this.pedidoAluguelId = pedidoAluguelId;
+    public void setPedidoId(Long pedidoId) {
+        this.pedidoId = pedidoId;
     }
     
     public LocalDate getDataAssinatura() {

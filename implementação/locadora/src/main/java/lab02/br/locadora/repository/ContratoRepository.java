@@ -22,7 +22,7 @@ public interface ContratoRepository extends JpaRepository<Contrato, Long> {
     /**
      * Busca contrato por pedido de aluguel
      */
-    Optional<Contrato> findByPedidoAluguelId(Long pedidoId);
+    Optional<Contrato> findByPedidoId(Long pedidoId);
     
     /**
      * Lista contratos por tipo
@@ -58,7 +58,7 @@ public interface ContratoRepository extends JpaRepository<Contrato, Long> {
     /**
      * Lista contratos por cliente
      */
-    @Query("SELECT c FROM Contrato c WHERE c.pedidoAluguel.cliente.id = :clienteId")
+    @Query("SELECT c FROM Contrato c WHERE c.pedido.cliente.id = :clienteId")
     List<Contrato> findByClienteId(@Param("clienteId") Long clienteId);
     
     /**

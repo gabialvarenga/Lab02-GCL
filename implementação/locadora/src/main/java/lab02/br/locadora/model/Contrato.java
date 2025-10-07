@@ -68,11 +68,11 @@ public class Contrato {
         this.numero = numero;
     }
     
-    public Pedido getpedido() {
+    public Pedido getPedido() {
         return pedido;
     }
     
-    public void setpedido(Pedido pedido) {
+    public void setPedido(Pedido pedido) {
         this.pedido = pedido;
     }
     
